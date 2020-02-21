@@ -23,4 +23,9 @@ for two MARC21 records describing the books identified by ISBN 0596001312 &
 <https://web-z3950.herokuapp.com/?server=lx2.loc.gov:210/LCDB&isbn=0066620724,0596001312&format=usmarc>
 
 /!\ As for now, this tool only handles basic ISBN searches (`@attr1=7`), it
-should be updated to handle all Z39.50 commands.
+should be updated to handle all Z39.50 commands. Anyway this tool is not production-ready. /!\
+
+## Credits
+
+This whole thing is obviously based on the [Zoom API](http://zoom.z3950.org/), used
+through [YAZ by IndexData](https://www.indexdata.com/resources/software/yaz/).
