@@ -1,0 +1,10 @@
+{
+  "name": "web-z3950",
+  "version": "0.0.1",
+  "dependencies": {
+  },
+  "engines": {
+    "node": ">= 12.0.0",
+    "npm": ">= 6.0.0"
+  }
+}
