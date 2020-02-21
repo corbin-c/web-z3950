@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Web-Z39.50 Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+form * {
+  margin: 5px;
+}
+textarea {
+  display: block;
+}
+input[type=radio] {
+  margin-left: 20px;
+}
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Web-Z39.50 Demo</h1>
+    </header>
+    <main>
+      <section>
+        <form>
+          <label for="isbn_list">Searched <abbr title="International Standard Book Number">ISBN</abbr> (one per line):</label>
+          <textarea id="isbn_list" name="isbn_list"></textarea>
+          <label for="server">Z39.50 Server:</label><input type="text" name="server" id="server">
+          <p>Desired MARC output format:</p>
+            <input type="radio" name="flavour" value="usmarc" checked>MARC 21<br>
+            <input type="radio" name="flavour" value="unimarc">UNIMARC<br>
+          <input type="submit" value="Submit" id="ok">
+        </form>
+      </section>
+    </main>
+    <footer>
+Developed by Clément CORBIN - <a href="https://github.com/corbin-c/web-z3950/" title="web-z3950 by corbin-c on Github">View code on Github</a>
+    </footer>
+  </body>
+  <script type="module">
+let server = document.querySelector("#server");
+let isbn = document.querySelector("#isbn_list");
+server.value = (window.location.search == "?sudoc")
+  ?"carmin.sudoc.abes.fr:10646/abes-z39-public":"";
+let button = document.querySelector("#ok");
+
+let output = (filename, data, type) => {
+  var a = window.document.createElement('a');
+  a.setAttribute("target","_blank");
+  a.href = window.URL.createObjectURL(new Blob([data], {type: type}));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+button.addEventListener("click", async (e) => {
+  e.preventDefault();
+  let format = [...document.querySelectorAll("input[type=radio]")]
+    .filter(e => e.checked == true)[0].value;
+  let url = window.location.origin;
+  url += "/?server="+server.value
+    +"&format="+format
+    +"&isbn="+isbn.value.split("\n").join(",");
+  url = await fetch(url);
+  url = await url.text();
+  output("results.mrc",url,"application/octet-stream");
+});
+  </script>
+</html>
