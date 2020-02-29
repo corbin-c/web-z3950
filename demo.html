@@ -39,6 +39,7 @@ Developed by Clément CORBIN - <a href="https://github.com/corbin-c/web-z3950/" 
     </footer>
   </body>
   <script type="module">
+const LIMIT = 100;
 let server = document.querySelector("#server");
 let isbn = document.querySelector("#isbn_list");
 server.value = (window.location.search == "?sudoc")
@@ -55,17 +56,28 @@ let output = (filename, data, type) => {
   document.body.removeChild(a);
 };
 
+let shrinkArray = (array, limit) => {
+  let output = [];
+  for (let i=0;i<array.length;i=i+limit) {
+    output.push(array.slice(i,i+limit));
+  }
+  return output;
+}
+
 button.addEventListener("click", async (e) => {
   e.preventDefault();
   let format = [...document.querySelectorAll("input[type=radio]")]
     .filter(e => e.checked == true)[0].value;
-  let url = window.location.origin;
-  url += "/?server="+server.value
-    +"&format="+format
-    +"&isbn="+isbn.value.split("\n").join(",");
-  url = await fetch(url);
-  url = await url.text();
-  output("results.mrc",url,"application/octet-stream");
+  let list = shrinkArray(isbn.value.split("\n"),LIMIT);
+  let out = "";
+  await Promise.all(list.map(async f => {
+    let url = window.location.origin+"/?server="+server.value
+      +"&format="+format
+      +"&isbn="+f.join(",");
+    url = await fetch(url);
+    out += await url.text();
+  }));
+  output("results.mrc",out,"application/octet-stream");
 });
   </script>
 </html>
