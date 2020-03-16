@@ -34,7 +34,7 @@ let yaz_binding = (response,parameters) => {
   let cmd = "open "+parameters.server+"\\nformat "+parameters.format+"\\n"+parameters.query+"\\nquit";
   cmd = 'yaz-client -f <(printf "'+cmd+'") -m ./'+output;
   const yaz = exec(cmd, {shell: "/bin/bash", stdio: "ignore"},
-    (err,stdout,stderr) => {
+     async (err,stdout,stderr) => {
       if (err) {
         console.error(err);
         return;
