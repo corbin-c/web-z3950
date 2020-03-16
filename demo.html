@@ -76,7 +76,7 @@ button.addEventListener("click", async (e) => {
       +"&format="+format
       +"&isbn="+f.join(",");
     url = await fetch(url);
-    let empty = url.headers.get("Void").split(",");
+    let empty = url.headers.get("Void").split(",").filter(e => e != "");
     if (empty.length > 0) {
       err.push(...empty);
     }
