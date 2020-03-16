@@ -31,8 +31,6 @@ let yaz_binding = (response,parameters) => {
     e = "f @attr 1=7 "+e+"\\ns 1\\n";
     return e
   }).join("");
-  let yazReady;
-  let emptySets = new Promise((resolve,reject) => yazReady = resolve);
   let cmd = "open "+parameters.server+"\\nformat "+parameters.format+"\\n"+parameters.query+"\\nquit";
   cmd = 'yaz-client -f <(printf "'+cmd+'") -m ./'+output;
   const yaz = exec(cmd, {shell: "/bin/bash", stdio: "ignore"},
@@ -41,29 +39,25 @@ let yaz_binding = (response,parameters) => {
         console.error(err);
         return;
       }
-    let empty = [];
-     stdout
-      .split("\n")
-      .filter(e => e.indexOf("Number of hits") >= 0)
-      .map(e => {
-        e = e.split("hits: ")[1].split(", setno ");
-        if (parseInt(e[0]) == 0) {
-          empty.push(parameters.isbn[parseInt(e[1])-1]);
-        }
-      });
-      yazReady(empty)
+      let empty = [];
+      stdout
+        .split("\n")
+        .filter(e => e.indexOf("Number of hits") >= 0)
+        .map(e => {
+          e = e.split("hits: ")[1].split(", setno ");
+          if (parseInt(e[0]) == 0) {
+            empty.push(parameters.isbn[parseInt(e[1])-1]);
+          }
+        });
+      response.writeHead(200, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Void": empty.join(",")
+        });
+      response.write(await getFile(output),"utf8");
+      response.end();
+      exec("rm "+output);
     }
   );
-  yaz.on("exit",async () => {
-    emptySets = await emptySets;
-    response.writeHead(200, {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Void": emptySets.join(",")
-      });
-    response.write(await getFile(output),"utf8");
-    response.end();
-    exec("rm "+output);
-  });
 }
 let server = http.createServer(async (req, res) => {
   let page = new URL("http://dummy.com"+req.url);
