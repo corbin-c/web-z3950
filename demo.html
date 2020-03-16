@@ -70,19 +70,13 @@ button.addEventListener("click", async (e) => {
     .filter(e => e.checked == true)[0].value;
   let list = shrinkArray(isbn.value.split("\n"),LIMIT);
   let out = "";
-  let err = [];
   await Promise.all(list.map(async f => {
     let url = window.location.origin+"/?server="+server.value
       +"&format="+format
       +"&isbn="+f.join(",");
     url = await fetch(url);
-    let empty = url.headers.get("Void").split(",");
-    if (empty.length > 0) {
-      err.push(...empty);
-    }
     out += await url.text();
   }));
-  alert(err.join(","));
   output("results.mrc",out,"application/octet-stream");
 });
   </script>

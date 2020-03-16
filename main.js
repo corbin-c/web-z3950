@@ -25,41 +25,15 @@ let getFileName = (parameters) => {
 let yaz_binding = (response,parameters) => {
   response.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
   let output = getFileName(parameters);
-  parameters.isbn = parameters.isbn.split(",")
-  parameters.query = parameters.isbn.map(e => {
+  parameters.query = parameters.query.split(",").map(e => {
     //Queries should be secured !
     e = "f @attr 1=7 "+e+"\\ns 1\\n";
     return e
   }).join("");
-  let yazReady;
-  let emptySets = new Promise((resolve,reject) => yazReady = resolve);
   let cmd = "open "+parameters.server+"\\nformat "+parameters.format+"\\n"+parameters.query+"\\nquit";
   cmd = 'yaz-client -f <(printf "'+cmd+'") -m ./'+output;
-  const yaz = exec(cmd, {shell: "/bin/bash", stdio: "ignore"},
-    (err,stdout,stderr) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-    let empty = [];
-     stdout
-      .split("\n")
-      .filter(e => e.indexOf("Number of hits") >= 0)
-      .map(e => {
-        e = e.split("hits: ")[1].split(", setno ");
-        if (parseInt(e[0]) == 0) {
-          empty.push(parameters.isbn[parseInt(e[1])-1]);
-        }
-      });
-      yazReady(empty)
-    }
-  );
+  const yaz = exec(cmd, {shell: "/bin/bash", stdio: "ignore"});
   yaz.on("exit",async () => {
-    emptySets = await emptySets;
-    response.writeHead(200, {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Void": emptySets.join(",")
-      });
     response.write(await getFile(output),"utf8");
     response.end();
     exec("rm "+output);
@@ -84,7 +58,7 @@ let server = http.createServer(async (req, res) => {
   } else {
     yaz_binding(res,{
       server:page.searchParams.get("server"),
-      isbn:page.searchParams.get("isbn"),
+      query:page.searchParams.get("isbn"),
       format:page.searchParams.get("format")
     });
   }

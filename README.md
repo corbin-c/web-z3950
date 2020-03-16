@@ -14,9 +14,6 @@ The service must be fed three mandatory parameters:
 * `isbn`: a list of ISBN, comma-separated
 * `format`: the desired MARC output format, usually `usmarc` or `unimarc`
 
-In case there are some queries without results, they are signaled through the
-"Void" response header.
-
 ## Sample query
 
 In order to query the [Library of Congress' Z39.50 server](https://www.loc.gov/z3950/lcserver.html)
