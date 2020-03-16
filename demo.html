@@ -69,15 +69,15 @@ button.addEventListener("click", async (e) => {
   let format = [...document.querySelectorAll("input[type=radio]")]
     .filter(e => e.checked == true)[0].value;
   let list = shrinkArray(isbn.value.split("\n"),LIMIT);
-  let out = "";
+  let out = [];
   await Promise.all(list.map(async f => {
     let url = window.location.origin+"/?server="+server.value
       +"&format="+format
       +"&isbn="+f.join(",");
     url = await fetch(url);
-    out += await url.text();
+    out.push(await url.text());
   }));
-  output("results.mrc",out,"application/octet-stream");
+  output("results.mrc",out.join(""),"application/octet-stream");
 });
   </script>
 </html>
