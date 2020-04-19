@@ -74,7 +74,7 @@ button.addEventListener("click", async (e) => {
   let err = [];
   console.log(list);
   await Promise.all(list.map(async f => {
-    let url = "https://web-z3950.herokuapp.com"+"/?server="+server.value
+    let url = window.location.origin+"/?server="+server.value
       +"&format="+format
       +"&isbn="+f.join(",");
     url = await fetch(url);
