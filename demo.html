@@ -39,6 +39,7 @@ Developed by Clément CORBIN - <a href="https://github.com/corbin-c/web-z3950/" 
     </footer>
   </body>
   <script type="module">
+const SEPARATOR = "\\u001d";
 const LIMIT = 100;
 let server = document.querySelector("#server");
 let isbn = document.querySelector("#isbn_list");
@@ -68,23 +69,30 @@ button.addEventListener("click", async (e) => {
   e.preventDefault();
   let format = [...document.querySelectorAll("input[type=radio]")]
     .filter(e => e.checked == true)[0].value;
-  let list = shrinkArray(isbn.value.split("\n"),LIMIT);
+  let list = shrinkArray(isbn.value.split("\n").filter(e => e != ""),LIMIT);
   let out = [];
   let err = [];
+  console.log(list);
   await Promise.all(list.map(async f => {
-    let url = window.location.origin+"/?server="+server.value
+    let url = "https://web-z3950.herokuapp.com"+"/?server="+server.value
       +"&format="+format
       +"&isbn="+f.join(",");
     url = await fetch(url);
-    let empty = url.headers.get("Void").split(",").filter(e => e != "");
-    if (empty.length > 0) {
-      err.push(...empty);
+    try {
+      let empty = url.headers.get("Void").split(",").filter(e => e != "");
+      if (empty.length > 0) {
+        err.push(...empty);
+      }
+    } catch {
+      console.warn("no Void header");
     }
     url = await url.text();
     out.push(url);
   }));
   alert(err.join(","));
-  output("results.mrc",out,"application/octet-stream");
+  output("results.mrc",
+    out.filter(e => e != "").join(JSON.parse('"'+SEPARATOR+'"')),
+    "application/octet-stream");
 });
   </script>
 </html>
